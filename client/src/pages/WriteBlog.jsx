@@ -41,7 +41,7 @@ const WriteBlog = () => {
             console.log(title, summary, content)
       
             // Send the POST request
-            const response = await fetch('https://blog-posting-site.vercel.app/post', {
+            const response = await fetch('https://blog-posting-site-server.vercel.app/post', {
               method: 'POST',
               headers : {'Content-Type' : 'application/json'},
               body: JSON.stringify({ title, summary, content, image: base64String }),
