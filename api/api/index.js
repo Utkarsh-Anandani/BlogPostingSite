@@ -164,4 +164,3 @@ app.get('/edit/:id', async (req, res) => {
 })
 
 const server = app.listen(port);
-server.timeout = 300000; // 5 minutes
