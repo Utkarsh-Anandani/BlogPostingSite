@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 const Navbar = ({userInfo, setuserInfo}) => {
     useEffect(() => {
-        fetch('http://localhost:3000/profile', {
+        fetch('https://blog-posting-site.vercel.app/profile', {
             credentials: 'include',
         }).then(response => {
             response.json().then(info => {
@@ -13,7 +13,7 @@ const Navbar = ({userInfo, setuserInfo}) => {
     }, [])
 
     const logout = ()=>{
-        fetch('http://localhost:3000/logout',{
+        fetch('https://blog-posting-site.vercel.app/logout',{
             credentials: 'include',
             method: 'POST',
         })

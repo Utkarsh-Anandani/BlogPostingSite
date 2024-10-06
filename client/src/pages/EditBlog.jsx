@@ -34,7 +34,7 @@ const EditBlog = () => {
   const [redirect, setredirect] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:3000/post/${id}`).then((response) => {
+    fetch(`https://blog-posting-site.vercel.app/post/${id}`).then((response) => {
       response.json().then((info) => {
         settitle(info.title);
         setsummary(info.summary);
@@ -51,7 +51,7 @@ const EditBlog = () => {
       reader.readAsDataURL(files[0]); // Read file as Base64
       reader.onloadend = async () => {
         const base64String = reader.result;
-        const response = await fetch("http://localhost:3000/post", {
+        const response = await fetch("https://blog-posting-site.vercel.app/post", {
           method: "PUT",
           headers : {'Content-Type' : 'application/json'},
           body: JSON.stringify({id, title, summary, content, image: base64String}),
@@ -63,7 +63,7 @@ const EditBlog = () => {
         }
       };
     } else {
-      const response = await fetch("http://localhost:3000/post", {
+      const response = await fetch("https://blog-posting-site.vercel.app/post", {
         method: "PUT",
         headers : {'Content-Type' : 'application/json'},
         body: JSON.stringify({id, title, summary, content}),

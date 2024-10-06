@@ -3,8 +3,6 @@ import { formatISO9075 } from 'date-fns'
 import { Link } from 'react-router-dom'
 
 const Blog = ({ _id, title, summary, cover, createdAt, author, image }) => {
-  // const source = 'http://localhost:3000/' + cover || image;
-  // console.log(source);
   return (
     <div className="blog">
       <div className="image">

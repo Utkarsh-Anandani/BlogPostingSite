@@ -7,7 +7,7 @@ const HomePage = () => {
   const [Loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3000/post').then(response =>{
+    fetch('https://blog-posting-site.vercel.app/post').then(response =>{
       response.json().then(posts => {
         setposts(posts);
         setLoading(false);
