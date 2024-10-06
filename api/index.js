@@ -15,7 +15,7 @@ const salt = bcrypt.genSaltSync(10);
 const secret = process.env.SECRET;
 const uri = process.env.MONGODB_URI;
 
-app.use(cors({ credentials: true, origin: 'https://blog-posting-site.vercel.app/' }));
+app.use(cors({ credentials: true, origin: 'https://blog-posting-site.vercel.app' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
