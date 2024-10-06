@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { formatISO9075 } from 'date-fns'
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import Loader from '../components/Loader';
 
 const PostPage = ({ userInfo }) => {
   const [PostInfo, setPostInfo] = useState(null);
@@ -23,7 +24,7 @@ const PostPage = ({ userInfo }) => {
           <p>{formatISO9075(new Date(PostInfo.createdAt)).replace(' ', ' || ')}</p>
           <p>By @{PostInfo.author.username}</p>
         </div>
-        <img src={'http://localhost:3000/' + PostInfo.cover.replace('//', '/')} alt="" />
+        <img src={PostInfo.image} alt="" />
         <div className="PostContent">
           <div className="content">
             <div dangerouslySetInnerHTML={{ __html: PostInfo.content }} />
@@ -48,7 +49,9 @@ const PostPage = ({ userInfo }) => {
     )
   }
   else {
-    return <h1>No Information Available regarding this Blog</h1>
+    return (
+      <Loader />
+    )
   }
 }
 

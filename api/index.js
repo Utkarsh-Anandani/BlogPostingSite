@@ -6,23 +6,33 @@ const Post = require('./models/Post')
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser')
-const multer = require('multer');
-const fs = require('fs');
+require('dotenv').config();
 
-const uploadMiddleware = multer({ dest: 'uploads/' })
 
 const app = express();
 const port = 3000;
 const salt = bcrypt.genSaltSync(10);
-const secret = 'ertyuioiuhhcxzsefvbnjgfdrthj';
+const secret = process.env.SECRET;
+const uri = process.env.MONGODB_URI;
 
 app.use(cors({ credentials: true, origin: 'http://localhost:5173' }));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
-app.use('/uploads', express.static(__dirname + '/uploads'));
 
-mongoose.connect('mongodb+srv://utkarsh:BC3CVHi9Q5enV4FA@cluster0.ykm3jlx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
-//mongodb+srv://utkarsh:BC3CVHi9Q5enV4FA@cluster0.ykm3jlx.mongodb.net/
+
+async function connectWithRetry() {
+  try {
+    await mongoose.connect(uri);
+    console.log('MongoDB is connected');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    setTimeout(connectWithRetry, 5000); // Retry after 5 seconds
+  }
+}
+
+connectWithRetry();
+
 
 app.get("/", (req, res) => {
     res.send("Hello")
@@ -74,59 +84,62 @@ app.post('/logout', (req, res) => {
     res.cookie('token', '').json('ok');
 });
 
-app.post('/post', uploadMiddleware.single('files'), async (req, res) => {
-    const { originalname, path } = req.file;
-    const parts = originalname.split('.');
-    const ext = parts[parts.length - 1];
-    const newPath = path + '.' + ext;
-    fs.renameSync(path, newPath);
+app.post('/post', async (req, res) => {
+    try {
+        const { token } = req.cookies;
 
-    const { token } = req.cookies;
-    if (token) {
-        jwt.verify(token, secret, {}, async (err, info) => {
-            if (err) throw err;
-            const { title, summary, content } = req.body;
+        if (token) {
+            jwt.verify(token, secret, {}, async (err, info) => {
+                if (err) throw err;
 
-            const postDoc = await Post.create({
-                title,
-                summary,
-                content,
-                cover: newPath,
-                author: info.id,
-            })
-            res.json(postDoc)
-        })
+                const { title, summary, content, image } = req.body;
+
+                // Create a new post document
+                const postDoc = await Post.create({
+                    title,
+                    summary,
+                    content,
+                    image,
+                    author: info.id,
+                });
+
+                res.json(postDoc);
+            });
+        } else {
+            res.status(401).json({ message: "No token provided" });
+        }
+    } catch (error) {
+        console.error(error, error.message);
+        res.status(400).json({ message: error.message });
     }
 });
 
-app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
-    const newPath = null;
-    if (req.file) {
-        const { originalname, path } = req.file;
-        const parts = originalname.split('.');
-        const ext = parts[parts.length - 1];
-        newPath = path + '.' + ext;
-        fs.renameSync(path, newPath);
-    }
-    const { token } = req.cookies;
-    if (token) {
-        jwt.verify(token, secret, {}, async (err, info) => {
-            if (err) throw err;
-            const { id, title, summary, content } = req.body;
-            const postDoc = await Post.findById(id);
-            const isAuthor = JSON.stringify(info.id) === JSON.stringify(postDoc.author);
-            if(!isAuthor){
-                return res.status(400).json("you're not the author");
-            }
 
-            await postDoc.updateOne({
-                title,
-                summary,
-                content,
-                cover: newPath ? newPath : postDoc.cover,
+app.put('/post', async (req, res) => {
+    try {
+        const { token } = req.cookies;
+        if (token) {
+            jwt.verify(token, secret, {}, async (err, info) => {
+                if (err) throw err;
+                const { id, title, summary, content, image } = req.body;
+                const postDoc = await Post.findById(id);
+                const isAuthor = JSON.stringify(info.id) === JSON.stringify(postDoc.author);
+                if (!isAuthor) {
+                    return res.status(400).json("you're not the author");
+                }
+
+                await postDoc.updateOne({
+                    title,
+                    summary,
+                    content,
+                    image
+                })
+                res.json(postDoc)
             })
-            res.json(postDoc)
-        })
+        }
+    } catch (error) {
+        console.error(error, error.message);
+        res.status(400).json({ message: error.message });
     }
 })
 
@@ -150,9 +163,5 @@ app.get('/edit/:id', async (req, res) => {
     res.json(info)
 })
 
-app.listen(port);
-
-
-//BC3CVHi9Q5enV4FA
-
-//mongodb+srv://utkarsh:BC3CVHi9Q5enV4FA@cluster0.ykm3jlx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+const server = app.listen(port);
+server.timeout = 300000; // 5 minutes

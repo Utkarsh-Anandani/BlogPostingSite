@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react'
 import Blog from '../components/Blog'
+import Loader from '../components/Loader';
 
 const HomePage = () => {
   const [posts, setposts] = useState([]);
+  const [Loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetch('http://localhost:3000/post').then(response =>{
       response.json().then(posts => {
         setposts(posts);
+        setLoading(false);
       })
     })
   }, [])
   
   return (
     <div className="blogs">
+      {Loading ? <Loader /> : ''}
         {posts.length > 0 &&
         posts.map(post => {
           return <Blog key={post._id} {...post}/>

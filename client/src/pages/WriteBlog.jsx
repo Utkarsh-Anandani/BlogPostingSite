@@ -27,24 +27,36 @@ const WriteBlog = () => {
     const [files, setfiles] = useState('')
     const [redirect, setredirect] = useState(false)
 
-    const postBlog = async (e)=>{
+    const postBlog = async (e) => {
         e.preventDefault();
-        const data = new FormData();
-        data.set('title', title)
-        data.set('summary', summary)
-        data.set('content', content)
-        data.set('files', files[0])
-        console.log(files[0])
-        e.preventDefault();
-        const response = await fetch('http://localhost:3000/post',{
-            method: 'POST',
-            body: data,
-            credentials: 'include',
-        })
-        if(response.ok){
-            setredirect(true)
+      
+        // Convert the file to a Base64 string if a file is selected
+        if (files && files[0]) {
+          const reader = new FileReader();
+          reader.readAsDataURL(files[0]); // Read file as Base64
+          reader.onloadend = async () => {
+            const base64String = reader.result; // Contains the Base64 encoded image
+      
+            // Add other fields to the request body
+            console.log(title, summary, content)
+      
+            // Send the POST request
+            const response = await fetch('http://localhost:3000/post', {
+              method: 'POST',
+              headers : {'Content-Type' : 'application/json'},
+              body: JSON.stringify({ title, summary, content, image: base64String }),
+              credentials: 'include', // Include cookies if needed
+            });
+      
+            if (response.ok) {
+              setredirect(true);
+            } else {
+              console.error('Failed to post blog');
+            }
+          };
         }
-    }
+      };
+      
 
     if(redirect){
         return <Navigate to={'/'}/>
