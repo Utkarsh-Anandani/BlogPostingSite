@@ -136,6 +136,8 @@ app.put('/post', async (req, res) => {
                 })
                 res.json(postDoc)
             })
+        } else {
+            res.status(401).json({ message: "No token provided" });
         }
     } catch (error) {
         console.error(error, error.message);
