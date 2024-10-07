@@ -35,7 +35,7 @@ connectWithRetry();
 
 
 app.get("/", (req, res) => {
-    return res.send("Hello")
+    return res.send("Hello World!!!")
 })
 
 app.post('/register', async (req, res) => {
@@ -90,7 +90,10 @@ app.post('/post', async (req, res) => {
 
         if (token) {
             jwt.verify(token, secret, {}, async (err, info) => {
-                if (err) throw err;
+                if (err) {
+                    console.log('JWT Verification Error:', err);
+                    return res.status(401).json({ message: 'Invalid or expired token' }); // Send response directly
+                }
 
                 const { title, summary, content, image } = req.body;
 
