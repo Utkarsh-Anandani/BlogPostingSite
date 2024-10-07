@@ -12,6 +12,7 @@ const RegisterationPage = () => {
         e.preventDefault();
         const response = await fetch('https://blogpostingsite.onrender.com/register', {
             method : 'POST',
+            credentials: 'include',
             body : JSON.stringify({username,password}),
             headers : {'Content-Type' : 'application/json'}
         })

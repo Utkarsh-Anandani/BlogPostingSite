@@ -7,7 +7,9 @@ const HomePage = () => {
   const [Loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('https://blogpostingsite.onrender.com/post').then(response =>{
+    fetch('https://blogpostingsite.onrender.com/post', {
+      credentials: 'include',
+    }).then(response =>{
       response.json().then(posts => {
         setposts(posts);
         setLoading(false);

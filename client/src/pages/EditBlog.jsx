@@ -34,7 +34,9 @@ const EditBlog = () => {
   const [redirect, setredirect] = useState(false);
 
   useEffect(() => {
-    fetch(`https://blogpostingsite.onrender.com/post/${id}`).then((response) => {
+    fetch(`https://blogpostingsite.onrender.com/post/${id}`, {
+      credentials: "include",
+    }).then((response) => {
       response.json().then((info) => {
         settitle(info.title);
         setsummary(info.summary);

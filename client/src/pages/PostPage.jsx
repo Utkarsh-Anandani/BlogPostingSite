@@ -9,7 +9,9 @@ const PostPage = ({ userInfo }) => {
   const { id } = useParams();
 
   useEffect(() => {
-    fetch(`https://blogpostingsite.onrender.com/post/${id}`).then(response => {
+    fetch(`https://blogpostingsite.onrender.com/post/${id}`, {
+      credentials: 'include',
+    }).then(response => {
       response.json().then(info => {
         setPostInfo(info);
       })
