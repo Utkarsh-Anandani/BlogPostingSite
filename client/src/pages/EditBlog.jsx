@@ -85,7 +85,7 @@ const EditBlog = () => {
   return (
     <form className="writeBlog" action="" onSubmit={updateBlog}>
       <h1>
-        <span className="blue">Write</span> Blog
+        <span className="blue">Edit</span> Blog
       </h1>
 
       <input

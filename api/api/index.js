@@ -118,6 +118,7 @@ app.post('/post', async (req, res) => {
 app.put('/post', async (req, res) => {
     try {
         const { token } = req.cookies;
+        console.log(token);
         if (token) {
             jwt.verify(token, secret, {}, async (err, info) => {
                 if (err) throw err;
