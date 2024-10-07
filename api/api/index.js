@@ -22,13 +22,13 @@ app.use(cookieParser());
 
 
 async function connectWithRetry() {
-  try {
-    await mongoose.connect(uri);
-    console.log('MongoDB is connected');
-  } catch (err) {
-    console.error('MongoDB connection error:', err);
-    setTimeout(connectWithRetry, 5000); // Retry after 5 seconds
-  }
+    try {
+        await mongoose.connect(uri);
+        console.log('MongoDB is connected');
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        setTimeout(connectWithRetry, 5000); // Retry after 5 seconds
+    }
 }
 
 connectWithRetry();
@@ -57,7 +57,10 @@ app.post('/login', async (req, res) => {
     const passOK = bcrypt.compareSync(password, userDoc.password);
     if (passOK) {
         jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
-            return res.cookie('token', token).json({
+            return res.cookie('token', token, {
+                secure: true,     // Set this to true if using HTTPS
+                sameSite: 'None', // Required for cross-origin cookies
+            }).json({
                 id: userDoc._id,
                 username,
             })
@@ -81,7 +84,10 @@ app.get('/profile', (req, res) => {
 })
 
 app.post('/logout', (req, res) => {
-    return res.cookie('token', '').json('ok');
+    return res.cookie('token', '', {
+        secure: true,     // Set this to true if using HTTPS
+        sameSite: 'None', // Required for cross-origin cookies
+    }).json('ok');
 });
 
 app.post('/post', async (req, res) => {
