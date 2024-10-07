@@ -35,7 +35,7 @@ connectWithRetry();
 
 
 app.get("/", (req, res) => {
-    res.send("Hello")
+    return res.send("Hello")
 })
 
 app.post('/register', async (req, res) => {
@@ -45,9 +45,9 @@ app.post('/register', async (req, res) => {
             username,
             password: bcrypt.hashSync(password, salt),
         })
-        res.json(userDoc)
+        return res.json(userDoc)
     } catch (error) {
-        res.status(400).json(error)
+        return res.status(400).json(error)
     }
 })
 
@@ -57,14 +57,14 @@ app.post('/login', async (req, res) => {
     const passOK = bcrypt.compareSync(password, userDoc.password);
     if (passOK) {
         jwt.sign({ username, id: userDoc._id }, secret, {}, (err, token) => {
-            res.cookie('token', token).json({
+            return res.cookie('token', token).json({
                 id: userDoc._id,
                 username,
             })
         });
     }
     else {
-        res.status(400).json('Wrong Credentials');
+        return res.status(400).json('Wrong Credentials');
     }
 
 })
@@ -74,14 +74,14 @@ app.get('/profile', (req, res) => {
     if (token) {
         jwt.verify(token, secret, {}, (err, info) => {
             if (err) throw err;
-            res.json(info)
+            return res.json(info)
         })
     }
-    else res.json(null)
+    else return res.json(null)
 })
 
 app.post('/logout', (req, res) => {
-    res.cookie('token', '').json('ok');
+    return res.cookie('token', '').json('ok');
 });
 
 app.post('/post', async (req, res) => {
@@ -103,14 +103,14 @@ app.post('/post', async (req, res) => {
                     author: info.id,
                 });
 
-                res.json(postDoc);
+                return res.json(postDoc);
             });
         } else {
-            res.status(401).json({ message: "No token provided" });
+            return res.status(401).json({ message: "No token provided" });
         }
     } catch (error) {
         console.error(error, error.message);
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 });
 
@@ -121,7 +121,10 @@ app.put('/post', async (req, res) => {
         console.log(token);
         if (token) {
             jwt.verify(token, secret, {}, async (err, info) => {
-                if (err) throw err;
+                if (err) {
+                    console.log('JWT Verification Error:', err);
+                    return res.status(401).json({ message: 'Invalid or expired token' }); // Send response directly
+                }
                 const { id, title, summary, content, image } = req.body;
                 const postDoc = await Post.findById(id);
                 const isAuthor = JSON.stringify(info.id) === JSON.stringify(postDoc.author);
@@ -135,19 +138,19 @@ app.put('/post', async (req, res) => {
                     content,
                     image
                 })
-                res.json(postDoc)
+                return res.json(postDoc)
             })
         } else {
-            res.status(401).json({ message: "No token provided" });
+            return res.status(401).json({ message: "No token provided" });
         }
     } catch (error) {
         console.error(error, error.message);
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 })
 
 app.get('/post', async (req, res) => {
-    res.json(await Post.find()
+    return res.json(await Post.find()
         .populate('author', ['username'])
         .sort({ createdAt: -1 })
         .limit(20)
@@ -157,13 +160,13 @@ app.get('/post', async (req, res) => {
 app.get('/post/:id', async (req, res) => {
     const { id } = req.params;
     const info = await Post.findById(id).populate('author', ['username']);
-    res.json(info)
+    return res.json(info)
 })
 
 app.get('/edit/:id', async (req, res) => {
     const { id } = req.params;
     const info = await Post.findById(id).populate('author', ['username']);
-    res.json(info)
+    return res.json(info)
 })
 
 const server = app.listen(port);
