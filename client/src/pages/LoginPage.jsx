@@ -10,7 +10,7 @@ const LoginPage = ({userInfo, setuserInfo}) => {
 
     const login = async (e)=>{
         e.preventDefault();
-        const response = await fetch('https://blog-posting-site-server.vercel.app/login', {
+        const response = await fetch('https://blogpostingsite.onrender.com/login', {
             method : 'POST',
             body : JSON.stringify({username,password}),
             headers : {'Content-Type' : 'application/json'},
